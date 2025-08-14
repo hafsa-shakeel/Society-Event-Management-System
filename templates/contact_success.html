@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>S.E.M.S - Contact Submitted</title>
+    <style>
+        .success-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .btn-home {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: black;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-home:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FAST NUCES</h1>
+        <h1>S.E.M.S</h1>
+        <h3>Better Memories, Better Experiences</h3>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/events">Upcoming Events</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/#contact">Contact</a></li>
+                {% if session.user_id %}
+                    {% if session.is_admin %}
+                        <li><a href="/admin_dashboard">Dashboard</a></li>
+                    {% else %}
+                        <li><a href="/user_dashboard">Dashboard</a></li>
+                    {% endif %}
+                    <li><a href="/logout">Logout</a></li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/register">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="success-container">
+        <div class="success-icon">✓</div>
+        <h2 class="success-title">Message Submitted Successfully!</h2>
+        <p class="success-message">
+            Thank you for contacting us. Your message has been received and we will get back to you as soon as possible.
+        </p>
+        <a href="/" class="btn-home">Return to Home</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 PrimePlanners. All rights reserved.</p>
+    </footer>
+</body>
+</html>

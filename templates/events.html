@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.E.M.S - All Events</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-weight: 700;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 12px;
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .event-info {
+            color: #0a0a0a;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .book-btn {
+            padding: 6px 12px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .book-btn:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FAST NUCES</h1>
+        <h1>S.E.M.S</h1>
+        <h3>Better Memories, Better Experiences</h3>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/events">Upcoming Events</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/#contact">Contact</a></li>
+                {% if session.user_id %}
+                    {% if session.is_admin %}
+                    <li><a href="/admin_dashboard">Dashboard</a></li>
+                    {% else %}
+                    <li><a href="/user_dashboard">Dashboard</a></li>
+                    {% endif %}
+                    <li><a href="/logout">Logout</a></li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/register">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="content">
+        <h1>All Events</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>EVENT NAME</th>
+                    <th>CAPACITY</th>
+                    <th>TICKET PRICE</th>
+                    <th>ARTIST NAME</th>
+                    <th>VENUE</th>
+                    <th>EVENT STATUS</th>
+                    <th>EVENT DATE</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                <tr>
+                    <td class="event-info">{{ event.eventname }}</td>
+                    <td class="event-info">{{ event.available_tickets }}</td>
+                    <td class="event-info">PKR{{ event.price }}/-</td>
+                    <td class="event-info">{{ event.artistname }}</td>
+                    <td class="event-info">{{ event.venue }}</td>
+                    <td class="event-info">{{ event.eventstatus }}</td>
+                    <td class="event-info">{{ event.date }}</td>
+                    <td>
+                        {% if event.available_tickets > 0 and event.eventstatus == 'active' %}
+                            {% if session.user_id %}
+                                <a href="/booking?event={{ event.id }}" class="book-btn">Book Now</a>
+                            {% else %}
+                                <a href="/login" class="book-btn">Login to Book</a>
+                            {% endif %}
+                        {% else %}
+                            <span class="event-info">Not Available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 PrimePlanners. All rights reserved.</p>
+    </footer>
+</body>
+</html>

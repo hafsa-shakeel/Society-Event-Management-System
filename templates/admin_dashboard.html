@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>S.E.M.S - Admin Dashboard</title>
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-title {
+            font-size: 1.8em;
+            color: #333;
+        }
+
+        .admin-welcome {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dashboard-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            border-bottom: 2px solid transparent;
+        }
+
+        .dashboard-tab.active {
+            color: black;
+            border-bottom: 2px solid black;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .admin-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .admin-card-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .admin-table th {
+            background-color: #f0f0f0;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .admin-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .admin-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .admin-form {
+            margin-top: 20px;
+        }
+
+        .admin-form-title {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .admin-btn {
+            padding: 8px 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .admin-btn:hover {
+            background-color: #333;
+        }
+
+        .admin-btn-danger {
+            background-color: #d32f2f;
+        }
+
+        .admin-btn-danger:hover {
+            background-color: #b71c1c;
+        }
+
+        .admin-btn-small {
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto; /* Make modal scrollable */
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto; /* Reduced from 10% to 5% to show more content */
+            padding: 20px;
+            border-radius: 8px;
+            width: 60%;
+            max-width: 600px;
+            max-height: 90vh; /* Set maximum height */
+            overflow-y: auto; /* Make content scrollable */
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            position: sticky; /* Keep header visible when scrolling */
+            top: 0;
+            background-color: white;
+            padding-bottom: 10px;
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-size: 1.2em;
+            color: #333;
+            margin: 0;
+        }
+
+        .close-modal {
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        /* Add form actions sticky positioning */
+        .form-actions {
+            position: sticky;
+            bottom: 0;
+            background-color: white;
+            padding-top: 10px;
+            z-index: 1;
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .badge-unread {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .badge-read {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* Contact message styles */
+        .contact-message {
+            white-space: pre-wrap;
+            max-height: 100px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FAST NUCES</h1>
+        <h1>S.E.M.S</h1>
+        <h3>Better Memories, Better Experiences</h3>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/events">Upcoming Events</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/#contact">Contact</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h2 class="dashboard-title">Admin Dashboard</h2>
+                <p class="admin-welcome">Welcome, {{ admin.first_name }} {{ admin.last_name }}!</p>
+            </div>
+            <div class="dashboard-actions">
+                <button class="admin-btn" onclick="openModal('add-event-modal')"><i class="fas fa-plus"></i> Add Event</button>
+                <a href="/logout" class="admin-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <div class="dashboard-tabs">
+            <div class="dashboard-tab active" onclick="switchTab('events')">Events</div>
+            <div class="dashboard-tab" onclick="switchTab('users')">Users</div>
+            <div class="dashboard-tab" onclick="switchTab('bookings')">Bookings</div>
+            <div class="dashboard-tab" onclick="switchTab('contacts')">Contact Submissions</div>
+        </div>
+
+        <!-- Events Tab -->
+        <div id="events-tab" class="tab-content active">
+            <div class="admin-card">
+                <h3 class="admin-card-title">
+                    Manage Events
+                    <button class="admin-btn admin-btn-small" onclick="openModal('add-event-modal')"><i class="fas fa-plus"></i> Add Event</button>
+                </h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th>Price</th>
+                            <th>Available</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                        <tr>
+                            <td>{{ event.id }}</td>
+                            <td>{{ event.name }}</td>
+                            <td>{{ event.date }}</td>
+                            <td>{{ event.venue }}</td>
+                            <td>PKR{{ event.price }}/-</td>
+                            <td>{{ event.available_tickets }}</td>
+                            <td>{{ event.status }}</td>
+                            <td>
+                                <button class="admin-btn admin-btn-small" onclick="openEditEventModal('{{ event.id }}', '{{ event.name }}', '{{ event.date }}', '{{ event.venue }}', '{{ event.price }}', '{{ event.available_tickets }}', '{{ event.description }}')">Edit</button>
+                                <form action="/delete_event/{{ event.id }}" method="post" style="display: inline;">
+                                    <button type="submit" class="admin-btn admin-btn-small admin-btn-danger" onclick="return confirm('Are you sure you want to cancel this event?')">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users-tab" class="tab-content">
+            <div class="admin-card">
+                <h3 class="admin-card-title">Manage Users</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>
+                                <form action="/delete_user/{{ user.id }}" method="post" style="display: inline;">
+                                    <button type="submit" class="admin-btn admin-btn-small admin-btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bookings Tab -->
+        <div id="bookings-tab" class="tab-content">
+            <div class="admin-card">
+                <h3 class="admin-card-title">View Bookings</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Event</th>
+                            <th>Tickets</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Booking Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.id }}</td>
+                            <td>{{ booking.user_name }}</td>
+                            <td>{{ booking.event_name }}</td>
+                            <td>{{ booking.num_tickets }}</td>
+                            <td>PKR{{ booking.total_price }}/-</td>
+                            <td>{{ booking.status }}</td>
+                            <td>{{ booking.booking_date }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Contact Submissions Tab -->
+        <div id="contacts-tab" class="tab-content">
+            <div class="admin-card">
+                <h3 class="admin-card-title">Contact Submissions</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in contact_submissions %}
+                        <tr>
+                            <td>{{ submission.id }}</td>
+                            <td>{{ submission.name }}</td>
+                            <td>{{ submission.email }}</td>
+                            <td>
+                                <div class="contact-message">{{ submission.message }}</div>
+                            </td>
+                            <td>{{ submission.submission_date }}</td>
+                            <td>
+                                <span class="badge {% if submission.status == 'unread' %}badge-unread{% else %}badge-read{% endif %}">
+                                    {{ submission.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if submission.status == 'unread' %}
+                                <form action="/mark_contact_read/{{ submission.id }}" method="post" style="display: inline;">
+                                    <button type="submit" class="admin-btn admin-btn-small">Mark as Read</button>
+                                </form>
+                                {% endif %}
+                                <form action="/delete_contact/{{ submission.id }}" method="post" style="display: inline;">
+                                    <button type="submit" class="admin-btn admin-btn-small admin-btn-danger" onclick="return confirm('Are you sure you want to delete this submission?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="add-event-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Event</h3>
+                <span class="close-modal" onclick="closeModal('add-event-modal')">&times;</span>
+            </div>
+            <form action="/add_event" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="name">Event Name</label>
+                    <input type="text" id="name" name="name" class="form-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="date">Date</label>
+                        <input type="date" id="date" name="date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="venue">Venue</label>
+                        <input type="text" id="venue" name="venue" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="price">Price</label>
+                        <input type="number" id="price" name="price" class="form-input" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="available_tickets">Available Tickets</label>
+                        <input type="number" id="available_tickets" name="available_tickets" class="form-input" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" name="description" class="form-textarea" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="admin-btn">Add Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div id="edit-event-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Event</h3>
+                <span class="close-modal" onclick="closeModal('edit-event-modal')">&times;</span>
+            </div>
+            <form id="edit-event-form" action="/edit_event/0" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="edit-name">Event Name</label>
+                    <input type="text" id="edit-name" name="name" class="form-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-date">Date</label>
+                        <input type="date" id="edit-date" name="date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-venue">Venue</label>
+                        <input type="text" id="edit-venue" name="venue" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-price">Price</label>
+                        <input type="number" id="edit-price" name="price" class="form-input" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-available_tickets">Available Tickets</label>
+                        <input type="number" id="edit-available_tickets" name="available_tickets" class="form-input" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-description">Description</label>
+                    <textarea id="edit-description" name="description" class="form-textarea" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="admin-btn">Update Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 PrimePlanners. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Function to switch tabs
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Show the selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Update tab styling
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Find the clicked tab and make it active
+            const clickedTab = Array.from(tabs).find(tab => 
+                tab.textContent.toLowerCase().includes(tabName.toLowerCase())
+            );
+            if (clickedTab) {
+                clickedTab.classList.add('active');
+            }
+        }
+
+        // Function to open modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        // Function to close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Function to open edit event modal with pre-filled data
+        function openEditEventModal(id, name, date, venue, price, available, description) {
+            // Set form action
+            document.getElementById('edit-event-form').action = `/edit_event/${id}`;
+            
+            // Fill form fields
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-date').value = formatDate(date);
+            document.getElementById('edit-venue').value = venue;
+            document.getElementById('edit-price').value = price;
+            document.getElementById('edit-available_tickets').value = available;
+            document.getElementById('edit-description').value = description;
+            
+            // Open modal
+            openModal('edit-event-modal');
+        }
+
+        // Helper function to format date for input field
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Flash messages
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if (messages) %}
+                {% for (category), message in messages %}
+                    alert('{{ message }}');
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+</body>
+</html>

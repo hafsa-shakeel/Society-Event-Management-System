@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.E.M.S - Book Tickets</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .booking-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .booking-title {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .booking-form {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .event-details {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: none;
+        }
+
+        .event-details.active {
+            display: block;
+        }
+
+        .event-details h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .event-info {
+            margin-bottom: 15px;
+        }
+
+        .event-info-label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .event-info-value {
+            color: #333;
+        }
+
+        .price-summary {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .price-label {
+            color: #666;
+        }
+
+        .price-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 1.2em;
+        }
+
+        .total-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .total-value {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FAST NUCES</h1>
+        <h1>S.E.M.S</h1>
+        <h3>Better Memories, Better Experiences</h3>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/events">Upcoming Events</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/#contact">Contact</a></li>
+                {% if session.user_id %}
+                <li><a href="/user_dashboard">Dashboard</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="booking-container">
+        <h2 class="booking-title">Book Your Tickets</h2>
+        
+        <div class="booking-form">
+            <form action="/booking" method="post" id="booking-form">
+                <div class="form-group">
+                    <label class="form-label" for="event">Select Event</label>
+                    <select id="event" name="event" class="form-select" required onchange="showEventDetails()">
+                        <option value="">-- Select an Event --</option>
+                        {% if events %}
+                            {% for event in events %}
+                            <option value="{{ event.id }}" 
+                                    data-name="{{ event.name }}" 
+                                    data-date="{{ event.date }}" 
+                                    data-venue="{{ event.venue }}" 
+                                    data-price="{{ event.price }}" 
+                                    data-available="{{ event.available_tickets }}">
+                                {{ event.name }} - {{ event.date }} (PKR{{ event.price }}/-) - {{ event.available_tickets }} tickets left
+                            </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No events available for booking</option>
+                        {% endif %}
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="name">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-input" required value="{{ user.first_name + ' ' + user.last_name if user else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-input" required value="{{ user.email if user else '' }}">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-input" required value="{{ user.phone if user else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tickets">Number of Tickets</label>
+                        <input type="number" id="tickets" name="tickets" class="form-input" min="1" max="10" required value="1" onchange="updatePriceSummary()">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="payment_method">Payment Method</label>
+                    <select id="payment_method" name="payment_method" class="form-select" required>
+                        <option value="">-- Select Payment Method --</option>
+                        <option value="credit_card">Credit Card</option>
+                        <option value="debit_card">Debit Card</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                
+                <div class="event-details" id="event-details">
+                    <h3>Event Details</h3>
+                    <div class="event-info">
+                        <span class="event-info-label">Event:</span>
+                        <span class="event-info-value" id="event-name"></span>
+                    </div>
+                    <div class="event-info">
+                        <span class="event-info-label">Date:</span>
+                        <span class="event-info-value" id="event-date"></span>
+                    </div>
+                    <div class="event-info">
+                        <span class="event-info-label">Venue:</span>
+                        <span class="event-info-value" id="event-venue"></span>
+                    </div>
+                    <div class="event-info">
+                        <span class="event-info-label">Available Tickets:</span>
+                        <span class="event-info-value" id="event-available"></span>
+                    </div>
+                    
+                    <div class="price-summary">
+                        <div class="price-row">
+                            <span class="price-label">Ticket Price:</span>
+                            <span class="price-value" id="ticket-price">₹0/-</span>
+                        </div>
+                        <div class="price-row">
+                            <span class="price-label">Number of Tickets:</span>
+                            <span class="price-value" id="ticket-quantity">0</span>
+                        </div>
+                        <div class="total-row">
+                            <span class="total-label">Total Amount:</span>
+                            <span class="total-value" id="total-price">₹0/-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn">Book Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 PrimePlanners. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Function to show event details when an event is selected
+        function showEventDetails() {
+            const eventSelect = document.getElementById('event');
+            const eventDetails = document.getElementById('event-details');
+            
+            if (eventSelect.value) {
+                const selectedOption = eventSelect.options[eventSelect.selectedIndex];
+                
+                // Update event details
+                document.getElementById('event-name').textContent = selectedOption.dataset.name;
+                document.getElementById('event-date').textContent = selectedOption.dataset.date;
+                document.getElementById('event-venue').textContent = selectedOption.dataset.venue;
+                document.getElementById('event-available').textContent = selectedOption.dataset.available + ' tickets';
+                
+                // Update price summary
+                updatePriceSummary();
+                
+                // Show event details
+                eventDetails.classList.add('active');
+            } else {
+                eventDetails.classList.remove('active');
+            }
+        }
+        
+        // Function to update price summary
+        function updatePriceSummary() {
+            const eventSelect = document.getElementById('event');
+            const ticketsInput = document.getElementById('tickets');
+            
+            if (eventSelect.value) {
+                const selectedOption = eventSelect.options[eventSelect.selectedIndex];
+                const price = parseInt(selectedOption.dataset.price);
+                const quantity = parseInt(ticketsInput.value);
+                const total = price * quantity;
+                
+                document.getElementById('ticket-price').textContent = 'PKR' + price + '/-';
+                document.getElementById('ticket-quantity').textContent = quantity;
+                document.getElementById('total-price').textContent = 'PKR' + total + '/-';
+            }
+        }
+        
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set max tickets based on available tickets
+            const eventSelect = document.getElementById('event');
+            const ticketsInput = document.getElementById('tickets');
+            
+            eventSelect.addEventListener('change', function() {
+                if (this.value) {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const availableTickets = parseInt(selectedOption.dataset.available);
+                    ticketsInput.max = availableTickets;
+                    
+                    // If current value is more than available, reset to max
+                    if (parseInt(ticketsInput.value) > availableTickets) {
+                        ticketsInput.value = availableTickets;
+                        updatePriceSummary();
+                    }
+                }
+            });
+            
+            // Pre-select event if provided in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('event');
+            if (eventId) {
+                eventSelect.value = eventId;
+                showEventDetails();
+            }
+        });
+    </script>
+</body>
+</html>

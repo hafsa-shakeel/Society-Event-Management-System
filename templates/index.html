@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.E.M.S - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>FAST NUCES</h1>
+        <h1>S.E.M.S</h1>
+        <h3>Better Memories, Better Experiences</h3>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/events">Upcoming Events</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                {% if session.user_id %}
+                    {% if session.is_admin %}
+                    <li><a href="/admin_dashboard">Dashboard</a></li>
+                    {% else %}
+                    <li><a href="/user_dashboard">Dashboard</a></li>
+                    {% endif %}
+                    <li><a href="/logout">Logout</a></li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/register">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="hero" style="background-image: url('{{ url_for('static', filename='1.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; margin: 0; padding: 0;">
+            <div style="content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.4);"></div>
+            <div class="hero-text" style="text-align: center; padding: 50px 20px; color: white; position: relative; z-index: 1;">
+                <h2 style="font-size: 2.5em;">FAST NUCES</h2>
+                <p>An Unforgettable way of making memories.</p>
+                <a href="#services" class="btn">Learn More</a>
+                <br>
+                {% if not session.user_id %}
+                <a href="/login" class="btn" style="margin-top: 10px;">Login</a>
+                <a href="/register" class="btn" style="margin-top: 10px;">Register</a>
+                {% endif %}
+            </div>
+        </section>
+        <section id="services" style="padding: 50px 20px; text-align: center;">
+            <h2>Our Recent Events</h2>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; max-width: 1400px; margin: 0 auto;">
+                <div style="width: calc(45% - 30px); margin: 0; transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative;">
+                    <div style="width: 100%; height: auto; position: relative; overflow: hidden; background-color: #f0f0f0;">
+                        <img src="{{ url_for('static', filename='4.jpg') }}" alt="Bonfire 2023" style="width: 100%; height: auto; object-fit: contain; transition: transform 0.5s ease; display: block; position: relative; min-height: 300px; max-height: 400px;">
+                    </div>
+                    <div style="padding: 20px; background-color: white; transition: background-color 0.3s ease;">
+                        <h3 style="margin-top: 0; margin-bottom: 5px; color: #333; transition: color 0.3s ease; display: block; font-size: 1.3em;">Bonfire 2023</h3>
+                        <p style="color: #666; margin-bottom: 0; display: block; font-size: 1.1em;">DECS Society</p>
+                    </div>
+                </div>
+                
+                <div style="width: calc(45% - 30px); margin: 0; transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative;">
+                    <div style="width: 100%; height: auto; position: relative; overflow: hidden; background-color: #f0f0f0;">
+                        <img src="{{ url_for('static', filename='5.jpg') }}" alt="Beach Party 2024" style="width: 100%; height: auto; object-fit: contain; transition: transform 0.5s ease; display: block; position: relative; min-height: 300px; max-height: 400px;">
+                    </div>
+                    <div style="padding: 20px; background-color: white; transition: background-color 0.3s ease;">
+                        <h3 style="margin-top: 0; margin-bottom: 5px; color: #333; transition: color 0.3s ease; display: block; font-size: 1.3em;">Beach Party 2024</h3>
+                        <p style="color: #666; margin-bottom: 0; display: block; font-size: 1.1em;"> DECS Society Summer celebration</p>
+                    </div>
+                </div>
+                
+                <div style="width: calc(45% - 30px); margin: 0; transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative;">
+                    <div style="width: 100%; height: auto; position: relative; overflow: hidden; background-color: #f0f0f0;">
+                        <img src="{{ url_for('static', filename='6.jpg') }}" alt="Concert" style="width: 100%; height: auto; object-fit: contain; transition: transform 0.5s ease; display: block; position: relative; min-height: 300px; max-height: 400px;">
+                    </div>
+                    <div style="padding: 20px; background-color: white; transition: background-color 0.3s ease;">
+                        <h3 style="margin-top: 0; margin-bottom: 5px; color: #333; transition: color 0.3s ease; display: block; font-size: 1.3em;">Concert</h3>
+                        <p style="color: #666; margin-bottom: 0; display: block; font-size: 1.1em;">DECS Society</p>
+                    </div>
+                </div>
+                
+                <div style="width: calc(45% - 30px); margin: 0; transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); position: relative;">
+                    <div style="width: 100%; height: auto; position: relative; overflow: hidden; background-color: #f0f0f0;">
+                        <img src="{{ url_for('static', filename='2.jpg') }}" alt="Cultural Night" style="width: 100%; height: auto; object-fit: contain; transition: transform 0.5s ease; display: block; position: relative; min-height: 300px; max-height: 400px;">
+                    </div>
+                    <div style="padding: 20px; background-color: white; transition: background-color 0.3s ease;">
+                        <h3 style="margin-top: 0; margin-bottom: 5px; color: #333; transition: color 0.3s ease; display: block; font-size: 1.3em;">Cultural Night</h3>
+                        <p style="color: #666; margin-bottom: 0; display: block; font-size: 1.1em;"> DECS Society Annual celebration</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="about" style="padding: 50px 20px; text-align: center; background-color: #f5f5f5;">
+            <h2>About Us</h2>
+            <p>From team-building activities to product launches, we'll help you create an event that will leave a lasting impression on your clients and employees.</p>
+        </section>
+        <section id="contact" style="padding: 50px 20px; max-width: 600px; margin: 0 auto;">
+            <h2>Contact Us</h2>
+            <form action="/contact" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="name">Name:</label>
+                    <input type="text" id="name" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">Email:</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="message">Message:</label>
+                    <textarea id="message" name="message" class="form-textarea" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <input type="submit" value="Send" class="btn">
+                </div>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 PrimePlanners. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+
